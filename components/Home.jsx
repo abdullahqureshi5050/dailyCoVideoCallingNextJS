@@ -10,7 +10,7 @@ import Field from '@custom/shared/components/Field';
 import { TextInput } from '@custom/shared/components/Input';
 import CreateRoomButton from './CreateRoomButton';
 
-export const Home = ({ setRoom, setExpiry, isConfigured, callFrame }) => {
+export const Home = ({ setRoom, setExpiry, isConfigured, callFrame, roomName }) => {
   const roomRef = useRef(null);
   const [isValidRoom, setIsValidRoom] = useState(false);
 
@@ -45,6 +45,7 @@ export const Home = ({ setRoom, setExpiry, isConfigured, callFrame }) => {
           isValidRoom={isValidRoom}
           setRoom={setRoom}
           setExpiry={setExpiry}
+          roomName={roomName}
         />
         <Field label="Or enter room to join">
           <TextInput

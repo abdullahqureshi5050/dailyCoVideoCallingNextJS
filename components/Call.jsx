@@ -25,17 +25,16 @@ const CALL_OPTIONS = {
   },
 };
 
-export function Call({ room, setRoom, callFrame, setCallFrame, expiry }) {
+export function Call({ room, setRoom, callFrame, setCallFrame, expiry, roomName }) {
   const callRef = useRef(null);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
   const [participants, setParticipants] = useState([]);
-  const [callFrameState, setCallFrameState] = useState(null)
+  const [callFrameState, setCallFrameState] = useState(null);
   const handleCopyClick = useCallback(() => {
     writeText(room);
     setIsLinkCopied(true);
     setTimeout(() => setIsLinkCopied(false), 5000);
   }, [room, isLinkCopied]);
-
 
   const createAndJoinCall = useCallback(() => {
     const newCallFrame = DailyIframe.createFrame(
@@ -49,87 +48,110 @@ export function Call({ room, setRoom, callFrame, setCallFrame, expiry }) {
     const leaveCall = () => {
       setRoom(null);
       setCallFrame(null);
-      if(callFrame)
-      callFrame.destroy();
+      if (callFrame) callFrame.destroy();
       setCallFrameState(null);
     };
-    
+
     // const waitingParticipants = newCallFrame.waitingParticipants();
 
     // console.log("======= waitingParticipants, ", waitingParticipants)
     const count = newCallFrame.participantCounts();
     alert(count);
-    console.log(count, "==== count")
+    console.log(count, '==== count');
     newCallFrame.on('left-meeting', leaveCall);
 
-    newCallFrame.on("joined-meeting", ()=>{console.log("======== joined-meeting")})
-    newCallFrame.on("participant-joined", ()=>{console.log("======== participant-joined")})
-    newCallFrame.on("participant-left", ()=>{console.log("======= participant-left")})
-    newCallFrame.on("app-message", ()=>{console.log("====== app-message")})
-    newCallFrame.on('participants-change', (event) => {
-      const updatedParticipants = event.participants;
-      setParticipants(updatedParticipants.length); // Update participants count
-      console.log("====== participants-change", updatedParticipants)
+    newCallFrame.on('joined-meeting', () => {
+      console.log('======== joined-meeting');
     });
+    newCallFrame.on('participant-joined', () => {
+      console.log('======== participant-joined');
+    });
+    newCallFrame.on('participant-left', () => {
+      console.log('======= participant-left');
+    });
+    newCallFrame.on('app-message', () => {
+      console.log('====== app-message');
+    });
+    // newCallFrame.on('participants-change', (event) => {
+    //   const updatedParticipants = event.participants;
+    //   setParticipants(updatedParticipants.length); // Update participants count
+    //   console.log("====== participants-change", updatedParticipants)
+    // });
   }, [room, setCallFrame]);
 
   /**
    * Initiate Daily iframe creation on component render if it doesn't already exist
    */
 
-  const presence =  async (e)=> {
+  const presence = async (e) => {
     e.preventDefault();
-    alert(process.env.NEXT_PUBLIC_DAILY_API_KEY);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}` 
+    axios.defaults.headers.common[
+      'Authorization'
+    ] = `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}`;
     const res = await axios.get(
       `https://api.daily.co/v1/presence`
       // ,
       // { headers: {"Authorization" : `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}`} }
     );
     // const res = await axios.get('/api/presence');
-   
-    if(res)
-    console.log("+++++++++++++++++rrrrrrrrrrrrrrrrrreeeeeeeeeeeeeessssssssss", res);
-  }
+  
+    if (res.data) {
+      // res.data.forEach((i) => console.log('....i', i));
+      if(res.data[roomName])
+      setParticipants(res.data[roomName]);
 
-  useEffect(()=>{
+    }
+  };
+
+  useEffect(() => {
     // setInterval(() => {
-    //   presence()    
+    //   presence()
     // }, 5000)
-  }
-   , [])
+  }, []);
 
   useEffect(() => {
     if (callFrameState)
-    callFrameState
-    .on("joined-meeting", ()=>{console.log("E======== joined-meeting", ()=>callFrameState.participants())})
-    .on("participant-joined", ()=>{console.log("E======== participant-joined", ()=>callFrameState.participants())})
-    .on("participant-left", ()=>{console.log("E======= participant-left",()=> callFrameState.participants())})
-    .on("app-message", ()=>{console.log("E====== app-message", callFrameState.participants())})
-    .on('participants-change', (event) => {
-      const updatedParticipants = event.participants;
-      setParticipants(updatedParticipants.length); // Update participants count
-      console.log("====== participants-change", updatedParticipants)
-    });
-    return () => {
-      }
-  }, [callFrameState])
-  
+      callFrameState
+        .on('joined-meeting', () => {
+          console.log('E======== joined-meeting', () =>
+            callFrameState.participants()
+          );
+        })
+        .on('participant-joined', () => {
+          console.log('E======== participant-joined', () =>
+            callFrameState.participants()
+          );
+        })
+        .on('participant-left', () => {
+          console.log('E======= participant-left', () =>
+            callFrameState.participants()
+          );
+        })
+        .on('app-message', () => {
+          console.log('E====== app-message', callFrameState.participants());
+        })
+        .on('participants-change', (event) => {
+          const updatedParticipants = event.participants;
+          setParticipants(updatedParticipants.length); // Update participants count
+          console.log('====== participants-change', updatedParticipants);
+        });
+    return () => {};
+  }, [callFrameState]);
+
   useEffect(() => {
     if (!room) {
-      console.log("room is null");
+      console.log('room is null');
       return null;
-  }
-  if(!callFrame){
-    console.log("callFrame is null");
-    return null;
-  }
-  const participants = callFrame.participants();
-  console.log("ccccccccccc" , participants);
-  // DailyEvent("joined-meeting", useCallback(ev)=>
-  //    console.log(`Joined meeting ${JSON.stringify(ev)}`)
-  // ,[]);
-  
+    }
+    if (!callFrame) {
+      console.log('callFrame is null');
+      return null;
+    }
+    const participants = callFrame.participants();
+    console.log('ccccccccccc', participants);
+    // DailyEvent("joined-meeting", useCallback(ev)=>
+    //    console.log(`Joined meeting ${JSON.stringify(ev)}`)
+    // ,[]);
   }, [room]);
 
   useEffect(() => {
@@ -145,7 +167,7 @@ export function Call({ room, setRoom, callFrame, setCallFrame, expiry }) {
         <div ref={callRef} className="call" />
         <Card>
           <CardHeader>Copy and share the URL to invite others</CardHeader>
-          <Button onClick={(e)=>presence(e)}>Presence</Button>
+          <Button onClick={(e) => presence(e)}>Presence</Button>
           <CardBody>
             <label htmlFor="copy-url"></label>
             <TextInput
@@ -159,11 +181,11 @@ export function Call({ room, setRoom, callFrame, setCallFrame, expiry }) {
               {isLinkCopied ? 'Copied!' : `Copy room URL`}
             </Button>
             <div>
-              <h2>Connected Participants:</h2>
+              <h2>Participants:</h2>
               <ul>
                 {participants.map((participant) => (
                   <li key={participant.user_id}>
-                    {participant.user_name || 'Participant'}
+                    {participant.userName}
                   </li>
                 ))}
               </ul>
@@ -176,7 +198,6 @@ export function Call({ room, setRoom, callFrame, setCallFrame, expiry }) {
                 <ExpiryTimer expiry={expiry} />
               </CardFooter>
             )}
-            
           </CardFooter>
         </Card>
         <style jsx>{`

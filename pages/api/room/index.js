@@ -4,25 +4,28 @@
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const options = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}`,
-      },
-      body: JSON.stringify({
-        name: 'abdullah102111',
-        properties: {
-          enable_prejoin_ui: true,
-          enable_network_ui: true,
-          enable_screenshare: true,
-          enable_chat: true,
-          exp: Math.round(Date.now() / 1000) + 300,
-          eject_at_room_exp: true,
-        },
-      }),
-    };
+    console.log
+    const { options } = req.body;
+    // console.log(options)
+    // const options = {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}`,
+    //   },
+    //   body: JSON.stringify({
+    //     name: 'abdullah102111',
+    //     properties: {
+    //       enable_prejoin_ui: true,
+    //       enable_network_ui: true,
+    //       enable_screenshare: true,
+    //       enable_chat: true,
+    //       exp: Math.round(Date.now() / 1000) + 300,
+    //       eject_at_room_exp: true,
+    //     },
+    //   }),
+    // };
 
     const dailyRes = await fetch(
       `${process.env.DAILY_REST_DOMAIN}/rooms`,

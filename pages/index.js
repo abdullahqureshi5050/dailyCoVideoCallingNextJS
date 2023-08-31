@@ -4,6 +4,8 @@ import getDemoProps from '@custom/shared/lib/demoProps';
 import Call from '../components/Call';
 import Home from '../components/Home';
 
+const roomName = "roomNamerwfsdfsfsfsrfsfdf101";
+
 export default function Index({ isConfigured = false }) {
   const [room, setRoom] = useState(null);
   const [expiry, setExpiry] = useState(null);
@@ -27,6 +29,7 @@ export default function Index({ isConfigured = false }) {
             setRoom={setRoom}
             setCallFrame={setCallFrame}
             callFrame={callFrame}
+            roomName={roomName}
           />
         ) : (
           <Home
@@ -34,6 +37,7 @@ export default function Index({ isConfigured = false }) {
             setExpiry={setExpiry}
             isConfigured={isConfigured}
             callFrame={callFrame}
+            roomName={roomName}
           />
         )}
       </main>
